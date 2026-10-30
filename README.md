@@ -45,3 +45,7 @@ GitHub et Vercel restent à configurer. Aucun déploiement n’a été effectué
 Les migrations SQL et leur procédure manuelle sont dans `supabase/`. Aucune migration PROD automatique.
 `.env.local` est ignoré par Git ; `.env.example` peut être versionné. Ne jamais utiliser une clé secrète ou un mot de passe PostgreSQL dans une variable `NEXT_PUBLIC_`.
 Les secrets précédemment partagés doivent être renouvelés avant tout usage de données personnelles réelles.
+
+## Préparation de PROD et design
+
+Le nouveau design et les protections de séparation des bases sont validés en Preview avant fusion. Voir `supabase/PRODUCTION.md` pour la mise en service manuelle de `supabase-contacts-prod`. Aucun projet PROD ne peut être utilisé en Preview ; `.env.local` reste en DEV.

@@ -1,30 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f7f9;
-  --foreground: #172a32;
+  --background: #f7f8fc;
+  --foreground: #202438;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans: "Avenir Next", "Segoe UI", Arial, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
 }
 
 button { cursor: pointer; }
 button:disabled { cursor: wait; }
 button, input { transition: background-color 150ms, border-color 150ms, box-shadow 150ms; }
-button:focus-visible { outline: 2px solid #0f766e; outline-offset: 4px; }
+button:focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
 @layer components {
-  .panel { @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm; }
-  .icon-tile { @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-2xl text-teal-800; }
-  .field { @apply block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/15; }
-  .button-primary { @apply rounded-xl bg-teal-800 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-900 disabled:opacity-50; }
+  .panel { @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_4px_24px_-12px_rgba(32,36,56,0.12)]; }
+  .icon-tile { @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-2xl text-indigo-600; }
+  .field { @apply block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15; }
+  .button-primary { @apply rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50; }
   .button-secondary { @apply rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50; }
+}
+
+@layer components {
+  .brand { @apply flex items-center gap-2 text-2xl font-semibold tracking-tight text-white; }
+  .brand-mark { @apply mr-1 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500 text-2xl font-bold text-white; }
+  .eyebrow { @apply text-[10px] font-bold tracking-[0.19em] text-indigo-500; }
+  .workspace { @apply relative min-h-screen; }
+  .workspace-sidebar { @apply absolute inset-y-0 left-0 hidden w-60 flex-col bg-[#20213a] px-6 py-9 lg:flex; }
+  .sidebar-label { @apply mb-5 mt-16 text-[9px] font-semibold tracking-[0.18em] text-slate-400; }
+  .sidebar-active { @apply flex items-center gap-3 rounded-xl bg-white/10 px-3 py-3 text-sm font-medium text-white; }
+  .sidebar-count { @apply ml-auto rounded-md bg-white/10 px-2 py-0.5 text-xs text-indigo-100; }
+  .sidebar-bottom { @apply mt-auto pt-16 text-xs text-indigo-200; }
+  .sidebar-bottom p { @apply mt-5 text-sm leading-6 text-slate-400; }
+  .status-dot { @apply inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400; }
+  .workspace-main { @apply px-5 py-7 sm:px-9 lg:ml-60 lg:px-10; }
+  .environment-pill { @apply inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-slate-500; }
+  .summary-card { @apply flex min-w-40 flex-col gap-1 border-l-2 border-indigo-300 pl-5; }
+  .workspace-footer { @apply px-5 pb-7 pt-4 text-[10px] text-slate-400 lg:ml-60 lg:px-10; }
+  .contact-avatar { @apply mr-2 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[10px] font-bold uppercase text-indigo-500; }
+  .account-bar { @apply border-b border-slate-200 bg-white; }
+  .account-bar .button-secondary { @apply border-0 bg-slate-50 py-1.5 text-xs; }
+  .login-layout { @apply grid min-h-screen lg:grid-cols-2; }
+  .login-story { @apply relative hidden flex-col justify-between overflow-hidden bg-[#20213a] p-12 lg:flex xl:p-16; }
+  .login-story::after { content: ''; position: absolute; width: 450px; height: 450px; bottom: -220px; right: -220px; border: 1px solid #ffffff12; border-radius: 50%; box-shadow: 0 0 0 70px #ffffff04, 0 0 0 140px #ffffff03; pointer-events: none; }
+  .login-story-content { @apply relative z-10 py-16; }
+  .story-tag { @apply text-[9px] font-semibold tracking-[0.2em] text-indigo-300; }
+  .login-story h2 { @apply mt-8 text-5xl font-medium leading-[1.2] tracking-tight text-white xl:text-6xl; }
+  .login-story h2 em { @apply font-normal text-indigo-300; }
+  .login-story-content > p { @apply mt-7 max-w-xs text-sm leading-7 text-slate-400; }
+  .connection-art { @apply mt-12 flex items-center; }
+  .connection-art span { @apply flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-xs font-semibold text-indigo-200; }
+  .connection-art span:nth-of-type(2) { @apply h-16 w-16 border-indigo-400/50 bg-indigo-500/30 text-[10px] text-white; }
+  .connection-art i { @apply h-px w-10 bg-indigo-300/30; }
+  .login-form-wrap { @apply flex items-center justify-center px-6 py-16 sm:px-12; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .panel, .login-form-wrap { animation: arrive 350ms ease-out both; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 }
