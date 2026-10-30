@@ -1,11 +1,12 @@
 'use client';
+import Link from 'next/link';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
 import { ContactsManager } from './contacts-manager';
 
-export function AuthGate() {
+export function AuthGate({ environment }: { environment: string }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -60,14 +61,16 @@ export function AuthGate() {
 
   if (loading) return <main className="flex min-h-screen items-center justify-center px-6"><p role="status" className="text-slate-600">Vérification de votre session…</p></main>;
   if (session) return <>
-    <div className="border-b border-teal-100 bg-teal-50"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-10"><p className="break-all text-sm text-teal-900">Connecté : {session.user.email}</p><button className="button-secondary" onClick={() => void logout()} disabled={busy}>{busy ? 'Déconnexion…' : 'Se déconnecter'}</button></div>{error && <p role="alert" className="px-5 pb-3 text-center text-sm text-red-700">{error}</p>}</div>
-    <ContactsManager key={session.user.id} />
+    <div className="account-bar"><div className="flex flex-wrap items-center justify-end gap-3 px-5 py-3 sm:px-10"><p className="break-all text-sm text-slate-600">Connecté : {session.user.email}</p><button className="button-secondary" onClick={() => void logout()} disabled={busy}>{busy ? 'Déconnexion…' : 'Se déconnecter'}</button></div>{error && <p role="alert" className="px-5 pb-3 text-center text-sm text-red-700">{error}</p>}</div>
+    <ContactsManager key={session.user.id} environment={environment} />
   </>;
-  return <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-12">
-    <div className="mb-8 flex items-center gap-3"><span className="icon-tile" aria-hidden="true">C</span><span className="text-xl font-semibold">Contacts.</span></div>
-    <section className="panel"><p className="mb-3 text-xs font-semibold uppercase tracking-widest text-teal-700">Supabase DEV</p><h1 className="text-2xl font-semibold tracking-tight">Bienvenue dans votre carnet.</h1><p className="mb-7 mt-3 text-sm leading-6 text-slate-500">Connectez-vous avec le compte de test créé dans Supabase pour retrouver vos contacts.</p>
+  return <main className="login-layout">
+    <section className="login-story" aria-label="Votre carnet de contacts"><Link href="/" className="brand"><span className="brand-mark" aria-hidden="true">c</span>contact.</Link><div className="login-story-content"><span className="story-tag">VOTRE RÉSEAU. VOTRE ESPACE.</span><h2>Les bonnes relations<br />méritent une<br /><em>bonne place.</em></h2><p>Un carnet simple et personnel pour retrouver les personnes qui comptent.</p><div className="connection-art" aria-hidden="true"><span>AM</span><i /><span>VOUS</span><i /><span>CL</span></div></div><p className="text-xs text-indigo-200/60">Simple à utiliser. Agréable à retrouver.</p></section>
+    <div className="login-form-wrap"><div className="w-full max-w-sm">
+    <p className="eyebrow mb-7">HEUREUX DE VOUS RETROUVER</p>
+    <section><h1 className="text-3xl font-semibold leading-tight tracking-tight">Un lien avec votre réseau.</h1><p className="mb-7 mt-3 text-sm leading-6 text-slate-500">Connectez-vous pour retrouver votre carnet et continuer là où vous en étiez.</p>
       {error && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-      <form onSubmit={login}><fieldset disabled={busy} className="space-y-5"><div><label htmlFor="login-email" className="mb-2 block text-sm font-medium">Adresse e-mail</label><input className="field" id="login-email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} /></div><div><label htmlFor="login-password" className="mb-2 block text-sm font-medium">Mot de passe</label><input className="field" id="login-password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /></div><button className="button-primary w-full" type="submit">{busy ? 'Connexion…' : 'Se connecter'}</button></fieldset></form>
-    </section><p className="mt-5 text-sm leading-6 text-slate-500">Environnement de test. Les contacts de chaque compte sont séparés.</p>
+      <form onSubmit={login}><fieldset disabled={busy} className="space-y-5"><div><label htmlFor="login-email" className="mb-2 block text-sm font-medium">Adresse e-mail</label><input className="field" id="login-email" type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} /></div><div><label htmlFor="login-password" className="mb-2 block text-sm font-medium">Mot de passe</label><input className="field" id="login-password" type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} /></div><button className="button-primary w-full" type="submit">{busy ? 'Connexion…' : 'Ouvrir mon carnet  →'}</button></fieldset></form>
+    </section><p className="mt-5 text-sm leading-6 text-slate-500">{environment} · Votre carnet reste personnel.</p></div></div>
   </main>;
 }
