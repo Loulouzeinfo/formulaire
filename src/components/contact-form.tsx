@@ -1,23 +1,123 @@
-'use client';
-import { useState, type FormEvent } from 'react';
-import type { Contact, ContactInput } from '@/lib/contacts';
-
-type Props = { contact: Contact | null; disabled: boolean; busy: boolean; onSave: (input: ContactInput) => Promise<boolean>; onCancel: () => void };
-export function ContactForm({ contact, disabled, busy, onSave, onCancel }: Props) {
-  const [values, setValues] = useState<ContactInput>(contact ?? { nom: '', prenom: '', email: '' });
+"use client";
+import { useState, type FormEvent } from "react";
+import type { Contact, ContactInput } from "@/lib/contacts";
+import { Icon } from "./icon";
+type Props = {
+  contact: Contact | null;
+  disabled: boolean;
+  busy: boolean;
+  onSave: (input: ContactInput) => Promise<boolean>;
+  onCancel: () => void;
+};
+export function ContactForm({
+  contact,
+  disabled,
+  busy,
+  onSave,
+  onCancel,
+}: Props) {
+  const [values, setValues] = useState<ContactInput>(
+    contact ?? { nom: "", prenom: "", email: "" },
+  );
+  const [error, setError] = useState(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (await onSave(values)) setValues({ nom: '', prenom: '', email: '' });
+    setError(false);
+    if (await onSave(values)) setValues({ nom: "", prenom: "", email: "" });
+    else setError(true);
   }
-  return <section className="panel contact-form-panel" aria-labelledby="form-title">
-    <div className="mb-7 flex items-start gap-3"><span className="icon-tile" aria-hidden="true">{contact ? '✎' : '+'}</span><div><h2 id="form-title" className="text-lg font-semibold">{contact ? 'Modifier le contact' : 'Nouveau contact'}</h2><p className="mt-1 text-sm text-slate-500">Une nouvelle rencontre à garder.</p></div></div>
-    <form onSubmit={submit}><fieldset disabled={disabled || busy} className="space-y-5 disabled:opacity-60">
-      {([['nom', 'Nom', 'Dupont', 'family-name'], ['prenom', 'Prénom', 'Camille', 'given-name'], ['email', 'Adresse e-mail', 'camille@exemple.fr', 'email']] as const).map(([name, label, placeholder, autoComplete]) => <div key={name}>
-        <label htmlFor={name} className="mb-2 block text-sm font-medium">{label} <span className="text-teal-700">*</span></label>
-        <input id={name} name={name} type={name === 'email' ? 'email' : 'text'} required maxLength={name === 'email' ? 254 : 100} autoComplete={autoComplete} placeholder={placeholder} value={values[name]} onChange={e => setValues({ ...values, [name]: e.target.value })} className="field" />
-      </div>)}
-      <button type="submit" className="button-primary w-full">{busy ? 'Enregistrement…' : contact ? 'Enregistrer les modifications' : 'Ajouter au carnet  +'}</button>
-      {contact && <button type="button" className="button-secondary w-full" onClick={onCancel}>Annuler la modification</button>}
-    </fieldset></form>
-  </section>;
+  return (
+    <section className="contact-form-panel" aria-labelledby="form-title">
+      <span className="form-symbol" aria-hidden="true">
+        <Icon name={contact ? "edit" : "person"} />
+      </span>
+      <h2 id="form-title">
+        {contact ? "Un contact à jour." : "Une nouvelle connexion."}
+      </h2>
+      <p className="form-intro">
+        {contact
+          ? "Les détails changent. Le lien reste."
+          : "Trois informations, et votre réseau s’agrandit."}
+      </p>
+      {error && (
+        <p role="alert" className="form-error">
+          L’enregistrement n’a pas abouti. Vérifiez les champs et votre
+          connexion, puis réessayez. Vos informations sont conservées.
+        </p>
+      )}
+      <form onSubmit={submit}>
+        <fieldset disabled={disabled || busy}>
+          <div className="form-name-grid">
+            {(
+              [
+                ["nom", "Nom", "Dupont", "family-name"],
+                ["prenom", "Prénom", "Camille", "given-name"],
+              ] as const
+            ).map(([name, label, placeholder, autoComplete]) => (
+              <div className="form-group" key={name}>
+                <label htmlFor={name}>
+                  {label}
+                  <span>*</span>
+                </label>
+                <input
+                  autoFocus={name === "nom"}
+                  id={name}
+                  name={name}
+                  type="text"
+                  required
+                  maxLength={100}
+                  autoComplete={autoComplete}
+                  placeholder={placeholder}
+                  value={values[name]}
+                  onChange={(e) =>
+                    setValues({ ...values, [name]: e.target.value })
+                  }
+                  className="field"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">
+              Adresse e-mail<span>*</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              maxLength={254}
+              autoComplete="email"
+              placeholder="camille@exemple.fr"
+              value={values.email}
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
+              className="field"
+            />
+          </div>
+          <p className="form-required">* Les trois champs sont nécessaires.</p>
+          <button type="submit" className="button-primary form-submit">
+            <span>
+              {busy
+                ? "Enregistrement…"
+                : contact
+                  ? "Enregistrer les modifications"
+                  : "Ajouter à mon réseau"}
+            </span>
+            <Icon
+              name={busy ? "refresh" : "arrow"}
+              className={busy ? "is-spinning" : ""}
+            />
+          </button>
+          <button
+            type="button"
+            className="form-cancel"
+            onClick={onCancel}
+            disabled={busy}
+          >
+            Revenir au carnet
+          </button>
+        </fieldset>
+      </form>
+    </section>
+  );
 }
