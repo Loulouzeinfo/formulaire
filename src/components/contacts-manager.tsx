@@ -1,13 +1,8 @@
 "use client";
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "./icon";
+import { AmbientBackdrop, AnimatedCount, ReactiveCard } from "./motion";
 import { ContactForm } from "./contact-form";
 import {
   readContacts,
@@ -16,14 +11,6 @@ import {
   type Contact,
   type ContactInput,
 } from "@/lib/contacts";
-
-const subscribeViewport = (notify: () => void) => {
-  const query = window.matchMedia("(max-width: 600px)");
-  query.addEventListener("change", notify);
-  return () => query.removeEventListener("change", notify);
-};
-const mobileSnapshot = () => window.matchMedia("(max-width: 600px)").matches;
-const serverSnapshot = () => false;
 
 type Notice = { kind: "success" | "error"; text: string };
 export function ContactsManager({ environment }: { environment: string }) {
@@ -39,13 +26,8 @@ export function ContactsManager({ environment }: { environment: string }) {
   const deletion = useRef<HTMLDialogElement>(null);
   const [pendingDelete, setPendingDelete] = useState<Contact | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [view, setView] = useState<"list" | "cards" | null>(null);
-  const mobile = useSyncExternalStore(
-    subscribeViewport,
-    mobileSnapshot,
-    serverSnapshot,
-  );
-  const presentation = view ?? (mobile ? "cards" : "list");
+  const [presentation, setView] = useState<"list" | "cards">("cards");
+  const [sort, setSort] = useState<"recent" | "name">("recent");
   const refresh = useCallback(async (announce = false) => {
     if (lock.current) return;
     lock.current = true;
@@ -97,11 +79,46 @@ export function ContactsManager({ environment }: { environment: string }) {
     setEditing(null);
     setVersion((v) => v + 1);
   }
-  function openEditor(contact: Contact | null = null) {
+  const openEditor = useCallback((contact: Contact | null = null) => {
     setEditing(contact);
     setVersion((v) => v + 1);
     editor.current?.showModal();
-  }
+  }, []);
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if (editor.current?.open || deletion.current?.open) return;
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        document.getElementById("search")?.focus();
+        return;
+      }
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+      )
+        return;
+      if (
+        event.code === "KeyN" &&
+        event.altKey &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        ready &&
+        !busy
+      ) {
+        event.preventDefault();
+        openEditor();
+      }
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, [ready, busy, openEditor]);
+  useEffect(() => {
+    if (notice?.kind !== "success") return;
+    const timeout = window.setTimeout(() => setNotice(null), 5000);
+    return () => window.clearTimeout(timeout);
+  }, [notice]);
   async function save(input: ContactInput) {
     if (lock.current || !ready) return false;
     lock.current = true;
@@ -167,21 +184,41 @@ export function ContactsManager({ environment }: { environment: string }) {
     }
   }
   const search = query.trim().toLocaleLowerCase("fr");
-  const visible = contacts.filter((c) =>
-    `${c.nom} ${c.prenom} ${c.email}`.toLocaleLowerCase("fr").includes(search),
-  );
+  const visible = contacts
+    .filter((c) =>
+      `${c.nom} ${c.prenom} ${c.email}`
+        .toLocaleLowerCase("fr")
+        .includes(search),
+    )
+    .sort((a, b) =>
+      sort === "name"
+        ? `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, "fr")
+        : Date.parse(b.created_at) - Date.parse(a.created_at),
+    );
+  const now = new Date();
+  const addedThisMonth = contacts.filter((c) => {
+    const date = new Date(c.created_at);
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth()
+    );
+  }).length;
   return (
     <div className="studio">
+      <AmbientBackdrop />
       <header className="studio-header">
         <Link href="/" className="studio-brand" aria-label="Contact, accueil">
           <span className="brand-symbol" aria-hidden="true">
-            ✳
+            <span />
+            <span />
+            <span />
           </span>
-          contact<span>.</span>
+          contact<span className="brand-os">/OS</span>
         </Link>
-        <div className="studio-header-middle">
-          <span className="tiny-square" /> UN PEU PLUS PROCHE.
-        </div>
+        <a href="#contacts-title" className="header-nav">
+          <Icon name="grid" /> Mon répertoire
+          <span className="nav-dot" />
+        </a>
         <span className="environment-pill">
           <span className="status-dot" />
           {environment}
@@ -191,48 +228,122 @@ export function ContactsManager({ environment }: { environment: string }) {
         <section className="studio-hero" aria-labelledby="page-title">
           <div className="hero-copy">
             <p className="studio-kicker">
-              VOTRE CARNET, RÉINVENTÉ <span>ÉD. 01</span>
+              <span className="signal-dot" /> VOTRE RÉSEAU. VOTRE ÉNERGIE.
             </p>
             <h1 id="page-title">
-              Les liens
+              Toutes vos connexions.
               <br />
-              <em>qui comptent.</em>
-              <span className="title-period">●</span>
+              <span>
+                Un nouveau <em>flow.</em>
+              </span>
             </h1>
             <p className="hero-description">
-              Des noms, des rencontres, des possibilités.
+              Les bonnes personnes, au bon endroit.
               <br />
-              Tout votre monde, dans un espace à vous.
+              Un espace fluide pour faire vivre votre réseau.
             </p>
-            <button
-              className="button-primary hero-button"
-              disabled={!ready || busy}
-              onClick={() => openEditor()}
-            >
-              <Icon name="plus" />
-              Ajouter un contact
-              <span className="button-arrow" aria-hidden="true">
-                ↗
+            <div className="hero-cta-row">
+              <button
+                className="button-primary hero-button"
+                disabled={!ready || busy}
+                onClick={() => openEditor()}
+              >
+                <Icon name="plus" /> Nouveau contact{" "}
+                <kbd title="Alt / Option + N">⌥ N</kbd>
+              </button>
+              <span className="hero-privacy">
+                <Icon name="lock" /> Votre espace privé
               </span>
-            </button>
-          </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="art-orbit orbit-one" />
-            <div className="art-orbit orbit-two" />
-            <div className="art-core">
-              <span>c.</span>
             </div>
-            <div className="art-bead bead-one" />
-            <div className="art-bead bead-two" />
-            <div className="art-bead bead-three" />
-            <span className="art-caption">
-              LES BELLES RENCONTRES
-              <br />
-              NE SE PERDENT PAS.
-            </span>
-            <span className="art-coordinate">48°51′ N — 02°21′ E</span>
+          </div>
+          <div className="network-art" aria-hidden="true">
+            <div className="network-grid" />
+            <div className="network-ring network-ring-one" />
+            <div className="network-ring network-ring-two" />
+            <div className="network-ring network-ring-three" />
+            <div className="network-core">
+              <span className="core-inner">
+                c<span>.</span>
+              </span>
+            </div>
+            <div className="network-node node-one">
+              <Icon name="person" />
+            </div>
+            <div className="network-node node-two">
+              <Icon name="person" />
+            </div>
+            <div className="network-node node-three">
+              <Icon name="plus" />
+            </div>
+            <div className="network-label">
+              <span className="signal-dot" /> CONNECTED TO YOU
+            </div>
+            <div className="network-spark spark-one" />
+            <div className="network-spark spark-two" />
           </div>
         </section>
+        <div className="metrics-row">
+          <ReactiveCard className="metric-card">
+            <span className="metric-icon">
+              <Icon name="people" />
+            </span>
+            <div>
+              <p>Votre réseau</p>
+              <strong>
+                {ready ? <AnimatedCount value={contacts.length} /> : "—"}
+                <span>contacts</span>
+              </strong>
+            </div>
+            <span className="metric-decoration" aria-hidden="true">
+              ↗
+            </span>
+          </ReactiveCard>
+          <ReactiveCard className="metric-card">
+            <span className="metric-icon metric-cyan">
+              <Icon name="sparkles" />
+            </span>
+            <div>
+              <p>Ce mois-ci</p>
+              <strong>
+                {ready ? <AnimatedCount value={addedThisMonth} /> : "—"}
+                <span>nouveaux liens</span>
+              </strong>
+            </div>
+            <span className="metric-pulse" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          </ReactiveCard>
+          <div className="metric-note">
+            <span className="status-dot" />
+            <p>
+              {ready ? (
+                <>
+                  Votre carnet est à jour.
+                  <br />
+                  <span>Chaque lien a sa place.</span>
+                </>
+              ) : (
+                <>
+                  {notice?.kind === "error"
+                    ? "Connexion interrompue."
+                    : "Connexion à votre espace…"}
+                  <br />
+                  <span>
+                    {notice?.kind === "error"
+                      ? "Cliquez sur Actualiser."
+                      : "On retrouve vos contacts."}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
         <section
           className="collection"
           aria-labelledby="contacts-title"
@@ -240,15 +351,24 @@ export function ContactsManager({ environment }: { environment: string }) {
         >
           <div className="collection-heading">
             <div className="collection-title">
-              <span className="section-index">01 /</span>
+              <span className="section-index">
+                <Icon name="people" />
+              </span>
               <h2 id="contacts-title">
-                Votre cercle
+                Votre répertoire
                 <span className="collection-count">
                   {ready ? contacts.length.toString().padStart(2, "0") : "—"}
                 </span>
               </h2>
             </div>
-            <p>De la première rencontre au prochain échange.</p>
+            <button
+              className="collection-add"
+              disabled={!ready || busy}
+              onClick={() => openEditor()}
+            >
+              <Icon name="plus" />
+              Ajouter
+            </button>
           </div>
           {notice && (
             <div
@@ -278,9 +398,20 @@ export function ContactsManager({ environment }: { environment: string }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <kbd aria-hidden="true">RECHERCHER</kbd>
+              <kbd aria-hidden="true">⌘ K</kbd>
             </div>
             <div className="toolbar-actions">
+              <label className="sort-select">
+                <span className="sr-only">Trier les contacts</span>
+                <Icon name="sort" />
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as "recent" | "name")}
+                >
+                  <option value="recent">Plus récents</option>
+                  <option value="name">Nom A → Z</option>
+                </select>
+              </label>
               <button
                 className="refresh-button"
                 disabled={busy}
@@ -316,16 +447,16 @@ export function ContactsManager({ environment }: { environment: string }) {
           {visible.length === 0 ? (
             <div className="studio-empty">
               <div className="empty-art" aria-hidden="true">
-                <span />
-                <span />
+                <div />
+                <Icon name="people" />
                 <span />
               </div>
               <p className="studio-kicker">
                 {!ready
-                  ? "UN PETIT INSTANT"
+                  ? "ON PRÉPARE VOTRE ESPACE"
                   : search
-                    ? "ON CHERCHE ENCORE ?"
-                    : "TOUT COMMENCE PAR UN BONJOUR"}
+                    ? "AFFINONS LA RECHERCHE"
+                    : "VOTRE PROCHAINE CONNEXION COMMENCE ICI"}
               </p>
               <h3>
                 {!ready
@@ -334,7 +465,7 @@ export function ContactsManager({ environment }: { environment: string }) {
                     : "Votre cercle prend place…"
                   : search
                     ? "Pas encore de correspondance."
-                    : "La première rencontre vous attend."}
+                    : "Prêt à élargir votre cercle ?"}
               </h3>
               <p>
                 {!ready
@@ -343,11 +474,11 @@ export function ContactsManager({ environment }: { environment: string }) {
                     : "Nous retrouvons vos contacts."
                   : search
                     ? "Essayez un autre nom ou une autre adresse e-mail."
-                    : "Ajoutez votre premier contact. Le reste, c’est une histoire de liens."}
+                    : "Ajoutez votre premier contact et donnez vie à votre réseau."}
               </p>
               {ready && !search && (
                 <button className="empty-add" onClick={() => openEditor()}>
-                  Faire le premier pas <span aria-hidden="true">↗</span>
+                  Ajouter mon premier contact <span aria-hidden="true">↗</span>
                 </button>
               )}
               {search && (
@@ -359,7 +490,7 @@ export function ContactsManager({ environment }: { environment: string }) {
           ) : presentation === "cards" ? (
             <div className="contact-grid">
               {visible.map((c, i) => (
-                <article key={c.id} className="person-card">
+                <ReactiveCard key={c.id} className="person-card">
                   <div className="person-card-top">
                     <span
                       className={`person-avatar tone-${i % 4}`}
@@ -407,7 +538,7 @@ export function ContactsManager({ environment }: { environment: string }) {
                     <summary>Identifiant</summary>
                     <span>{c.id}</span>
                   </details>
-                </article>
+                </ReactiveCard>
               ))}
             </div>
           ) : (
@@ -496,24 +627,16 @@ export function ContactsManager({ environment }: { environment: string }) {
             </span>
           </div>
         </section>
-        <div className="studio-endnote">
-          <span className="endnote-star" aria-hidden="true">
-            ✳
-          </span>
-          <p>
-            Un petit carnet.
-            <br />
-            <em>Un monde de possibilités.</em>
-          </p>
-          <span className="endnote-signature">
-            contact. — CULTIVEZ VOS LIENS.
-          </span>
-        </div>
       </main>
       <footer className="studio-footer">
-        <span>© {new Date().getFullYear()} contact.</span>
-        <span>Les gens d’abord. Le reste après.</span>
-        <span>{environment}</span>
+        <Link href="/" className="footer-brand">
+          contact/OS
+        </Link>
+        <span>De vraies connexions. Zéro distraction.</span>
+        <span className="footer-version">
+          <span className="status-dot" />
+          {environment} · v.02
+        </span>
       </footer>
       <dialog
         ref={deletion}
@@ -525,7 +648,7 @@ export function ContactsManager({ environment }: { environment: string }) {
         }}
       >
         <div className="dialog-topline">
-          <span>PRENDRE UN PEU DE RECUL</span>
+          <span>GÉRER VOTRE RÉSEAU</span>
           <button
             onClick={cancelDelete}
             disabled={busy}
@@ -539,9 +662,9 @@ export function ContactsManager({ environment }: { environment: string }) {
             <Icon name="trash" />
           </span>
           <h2 id="delete-title">
-            Retirer ce lien
+            Supprimer
             <br />
-            <em>de votre cercle ?</em>
+            <em>ce contact ?</em>
           </h2>
           <p>
             Le contact{" "}
@@ -586,7 +709,7 @@ export function ContactsManager({ environment }: { environment: string }) {
         }}
       >
         <div className="dialog-topline">
-          <span>VOTRE CERCLE S’AGRANDIT</span>
+          <span>VOTRE RÉSEAU PREND VIE</span>
           <button
             onClick={cancel}
             disabled={busy}

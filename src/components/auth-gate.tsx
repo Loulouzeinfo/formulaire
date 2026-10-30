@@ -12,6 +12,7 @@ export function AuthGate({ environment }: { environment: string }) {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lock = useRef(false);
@@ -85,6 +86,7 @@ export function AuthGate({ environment }: { environment: string }) {
       setError("Connexion impossible. Vérifiez votre connexion Internet.");
     } finally {
       setPassword("");
+      setShowPassword(false);
       lock.current = false;
       setBusy(false);
     }
@@ -111,10 +113,9 @@ export function AuthGate({ environment }: { environment: string }) {
 
   if (loading)
     return (
-      <main className="flex min-h-screen items-center justify-center px-6">
-        <p role="status" className="text-slate-600">
-          Vérification de votre session…
-        </p>
+      <main className="login-loading">
+        <span className="login-loader" aria-hidden="true" />
+        <p role="status">Ouverture de votre espace…</p>
       </main>
     );
   if (session)
@@ -136,7 +137,7 @@ export function AuthGate({ environment }: { environment: string }) {
           {error && (
             <p
               role="alert"
-              className="px-5 pb-3 text-center text-sm text-red-700"
+              className="account-error"
             >
               {error}
             </p>
@@ -146,142 +147,289 @@ export function AuthGate({ environment }: { environment: string }) {
       </>
     );
   return (
-    <main className="login-canvas">
-      <section
-        className="login-art-panel"
-        aria-label="Votre carnet de contacts"
-      >
-        <div className="login-art-topline">
-          <Link
-            href="/"
-            className="login-wordmark"
-            aria-label="Contact, accueil"
-          >
-            contact<span>.</span>
-          </Link>
-          <span className="login-edition">LE CARNET PERSONNEL / 01</span>
-        </div>
-
-        <div className="login-editorial">
-          <p className="login-overline">
-            <span /> LE GOÛT DES BELLES RENCONTRES
-          </p>
-          <h1>
-            Gardez le lien.
-            <br />
-            <span>Créez la suite.</span>
-          </h1>
-          <p className="login-story-copy">
-            Les rencontres ont quelque chose de précieux.
-            <br className="login-desktop-break" /> Offrez-leur un endroit à
-            part.
-          </p>
-        </div>
-
-        <div className="login-sculpture" aria-hidden="true">
-          <div className="login-orbit login-orbit-one" />
-          <div className="login-orbit login-orbit-two" />
-          <div className="login-sphere login-sphere-large" />
-          <div className="login-sphere login-sphere-small" />
-          <span className="login-art-coordinate login-coordinate-one">
-            48° 51′ N
-          </span>
-          <span className="login-art-coordinate login-coordinate-two">
-            TOUT COMMENCE PAR UN LIEN.
-          </span>
-          <span className="login-plus login-plus-one">+</span>
-          <span className="login-plus login-plus-two">+</span>
-        </div>
-
-        <div className="login-art-footer">
-          <span>Moins de distance. Plus de connexions.</span>
-          <span>↗</span>
-        </div>
-      </section>
-
-      <section className="login-access-panel" aria-labelledby="login-title">
-        <div className="login-access-topline">
-          <span className="login-mobile-wordmark">contact.</span>
-          <span className="login-environment">
-            <i />
-            {environment}
-          </span>
-        </div>
-        <div className="login-form-content">
-          <p className="login-overline login-access-overline">
-            VOTRE ESPACE, SIMPLEMENT
-          </p>
-          <h2 id="login-title">
-            À vous de
-            <br />
-            <span>vous connecter.</span>
-          </h2>
-          <p className="login-access-copy">
-            Retrouvez votre carnet. Et les personnes qui font la différence.
-          </p>
-          {error && (
-            <p role="alert" className="login-error">
-              {error}
-            </p>
-          )}
-          <form onSubmit={login} className="login-form">
-            <fieldset disabled={busy}>
-              <div className="login-field-group">
-                <label htmlFor="login-email">
-                  Adresse e-mail <span>01</span>
-                </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  autoComplete="username"
-                  placeholder="vous@exemple.fr"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="login-field-group">
-                <label htmlFor="login-password">
-                  Mot de passe <span>02</span>
-                </label>
-                <input
-                  id="login-password"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="Votre mot de passe"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="login-submit">
-                <span>
-                  {busy ? "Connexion en cours…" : "Entrer dans mon carnet"}
-                </span>
-                <span aria-hidden="true">↗</span>
-              </button>
-            </fieldset>
-          </form>
-          <div className="login-private-note">
-            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <main
+      className="login-canvas"
+      onPointerMove={(event) => {
+        if (event.pointerType === "touch") return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        event.currentTarget.style.setProperty(
+          "--login-pointer-x",
+          `${((event.clientX - bounds.left) / bounds.width) * 100}%`,
+        );
+        event.currentTarget.style.setProperty(
+          "--login-pointer-y",
+          `${((event.clientY - bounds.top) / bounds.height) * 100}%`,
+        );
+      }}
+    >
+      <div className="login-aurora login-aurora-one" aria-hidden="true" />
+      <div className="login-aurora login-aurora-two" aria-hidden="true" />
+      <div className="login-pointer-glow" aria-hidden="true" />
+      <header className="login-topbar">
+        <Link href="/" className="login-wordmark" aria-label="Contact, accueil">
+          <span className="login-brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
               <path
-                d="M6 9V6a4 4 0 0 1 8 0v3M5 9h10v8H5z"
+                d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10"
                 stroke="currentColor"
-                strokeWidth="1.3"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
               />
-              <circle cx="10" cy="13" r="1" fill="currentColor" />
             </svg>
-            <p>
-              Un carnet personnel.
+          </span>
+          contact<span className="login-wordmark-dot">.</span>
+        </Link>
+        <span className="login-environment">
+          <i aria-hidden="true" />
+          <span className="login-environment-value">{environment}</span>
+          <span className="login-environment-divider" />
+          <span className="login-environment-description">ESPACE PERSONNEL</span>
+        </span>
+      </header>
+      <div className="login-stage">
+        <section className="login-art-panel" aria-labelledby="login-art-title">
+          <div className="login-hero-copy">
+            <p className="login-overline">
+              <span aria-hidden="true" /> CHAQUE CONNEXION OUVRE UNE POSSIBILITÉ
+            </p>
+            <h1 id="login-art-title">
+              Votre réseau.
               <br />
-              <span>Vos contacts restent dans votre espace.</span>
+              <span>Sans limites.</span>
+            </h1>
+            <p className="login-story-copy">
+              Un espace pour vos contacts.
+              <br />
+              De l’énergie pour vos prochaines rencontres.
             </p>
           </div>
-        </div>
-        <p className="login-access-footer">
-          Conçu pour les liens qui comptent.
-        </p>
-      </section>
+          <div className="login-network" aria-hidden="true">
+            <div className="login-network-grid" />
+            <div className="login-ring login-ring-one">
+              <span />
+            </div>
+            <div className="login-ring login-ring-two">
+              <span />
+            </div>
+            <div className="login-ring login-ring-three" />
+            <div className="login-core">
+              <div className="login-core-inner">
+                <svg viewBox="0 0 80 80" fill="none">
+                  <path
+                    d="M51 24a23 23 0 1 0 0 32M51 24l-6 9M51 56l-6-9"
+                    stroke="currentColor"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="58" cy="40" r="5" fill="currentColor" />
+                </svg>
+              </div>
+            </div>
+            <div className="login-network-node login-node-one">
+              <span>01</span>
+              <i />
+            </div>
+            <div className="login-network-node login-node-two">
+              <span>02</span>
+              <i />
+            </div>
+            <div className="login-network-node login-node-three">
+              <span>03</span>
+              <i />
+            </div>
+            <span className="login-spark login-spark-one" />
+            <span className="login-spark login-spark-two" />
+            <span className="login-spark login-spark-three" />
+            <span className="login-network-caption">
+              <i />
+              VOS LIENS. VOTRE UNIVERS.
+            </span>
+          </div>
+          <div className="login-feature-row">
+            <span>
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path
+                  d="m4 10 4 4 8-8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Simple à retrouver
+            </span>
+            <span>
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path
+                  d="m4 10 4 4 8-8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Juste à vous
+            </span>
+          </div>
+        </section>
+        <section className="login-access-panel" aria-labelledby="login-title">
+          <div className="login-form-sheen" aria-hidden="true" />
+          <div className="login-form-content">
+            <span className="login-access-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M13 5h6v14h-6M4 12h11m-4-4 4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <p className="login-access-label">VOTRE ESPACE VOUS ATTEND</p>
+            <h2 id="login-title">On se reconnecte ?</h2>
+            <p className="login-access-copy">
+              Retrouvez vos contacts. Créez la suite.
+            </p>
+            {error && (
+              <p role="alert" className="login-error">
+                {error}
+              </p>
+            )}
+            <form onSubmit={login} className="login-form">
+              <fieldset disabled={busy}>
+                <div className="login-field-group">
+                  <label htmlFor="login-email">Adresse e-mail</label>
+                  <div className="login-input-wrap">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <rect
+                        x="2.5"
+                        y="4"
+                        width="15"
+                        height="12"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
+                      <path
+                        d="m3 5 7 6 7-6"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                      />
+                    </svg>
+                    <input
+                      id="login-email"
+                      name="email"
+                      type="email"
+                      autoComplete="username"
+                      placeholder="vous@exemple.fr"
+                      required
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="login-field-group">
+                  <label htmlFor="login-password">Mot de passe</label>
+                  <div className="login-input-wrap">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <path
+                        d="M6 8V6a4 4 0 0 1 8 0v2M4 8h12v9H4z"
+                        stroke="currentColor"
+                        strokeWidth="1.3"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <input
+                      id="login-password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      placeholder="Votre mot de passe"
+                      required
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="login-reveal"
+                      aria-label={
+                        showPassword
+                          ? "Masquer le mot de passe"
+                          : "Afficher le mot de passe"
+                      }
+                      aria-controls="login-password"
+                      aria-pressed={showPassword}
+                      onClick={() => setShowPassword((value) => !value)}
+                    >
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path
+                          d="M1.5 10s3-5 8.5-5 8.5 5 8.5 5-3 5-8.5 5-8.5-5-8.5-5Z"
+                          stroke="currentColor"
+                          strokeWidth="1.3"
+                        />
+                        <circle
+                          cx="10"
+                          cy="10"
+                          r="2.2"
+                          stroke="currentColor"
+                          strokeWidth="1.3"
+                        />
+                        {showPassword && (
+                          <path
+                            d="m3 3 14 14"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                          />
+                        )}
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" className="login-submit">
+                  <span>
+                    {busy ? "Connexion en cours…" : "Ouvrir mon espace"}
+                  </span>
+                  {busy ? (
+                    <span className="login-button-spinner" aria-hidden="true" />
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M5 12h14m-5-5 5 5-5 5"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </fieldset>
+            </form>
+            <div className="login-private-note">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path
+                  d="m10 2 6 2v5c0 4-6 8-6 8s-6-4-6-8V4z"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+                <path
+                  d="m7 9 2 2 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>Votre carnet. Votre compte. Votre espace.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer className="login-footer">
+        <span>contact. — L’humain, au centre.</span>
+        <span>
+          <i aria-hidden="true" />
+          PENSÉ POUR VOS CONNEXIONS
+        </span>
+      </footer>
     </main>
   );
 }

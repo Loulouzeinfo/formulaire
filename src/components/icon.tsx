@@ -11,8 +11,34 @@ type Name =
   | "arrow"
   | "lock"
   | "info"
-  | "check";
+  | "check"
+  | "person"
+  | "people"
+  | "sparkles"
+  | "sort";
 const paths: Record<Name, React.ReactNode> = {
+  person: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+    </>
+  ),
+  people: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M18 14a6 6 0 0 1 3 5v2" />
+    </>
+  ),
+  sparkles: (
+    <>
+      <path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3zM20 2v4M18 4h4" />
+    </>
+  ),
+  sort: (
+    <>
+      <path d="M4 6h16M4 12h10M4 18h4" />
+    </>
+  ),
   plus: <path d="M12 5v14M5 12h14" />,
   search: (
     <>

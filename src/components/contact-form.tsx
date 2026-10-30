@@ -29,27 +29,15 @@ export function ContactForm({
   return (
     <section className="contact-form-panel" aria-labelledby="form-title">
       <span className="form-symbol" aria-hidden="true">
-        {contact ? "↗" : "✳"}
+        <Icon name={contact ? "edit" : "person"} />
       </span>
       <h2 id="form-title">
-        {contact ? (
-          <>
-            Un lien,
-            <br />
-            <em>mis à jour.</em>
-          </>
-        ) : (
-          <>
-            Une rencontre,
-            <br />
-            <em>ça se garde.</em>
-          </>
-        )}
+        {contact ? "Un contact à jour." : "Une nouvelle connexion."}
       </h2>
       <p className="form-intro">
         {contact
-          ? "Ajustez les détails de votre contact."
-          : "Quelques détails. Une place dans votre carnet."}
+          ? "Les détails changent. Le lien reste."
+          : "Trois informations, et votre réseau s’agrandit."}
       </p>
       {error && (
         <p role="alert" className="form-error">
@@ -113,7 +101,7 @@ export function ContactForm({
                 ? "Enregistrement…"
                 : contact
                   ? "Enregistrer les modifications"
-                  : "Faire une place dans mon cercle"}
+                  : "Ajouter à mon réseau"}
             </span>
             <Icon
               name={busy ? "refresh" : "arrow"}
