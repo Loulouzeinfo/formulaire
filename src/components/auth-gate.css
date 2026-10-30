@@ -1,0 +1,526 @@
+.login-canvas {
+  --login-ink: #20221e;
+  --login-paper: #f6f4ee;
+  --login-blue: #234bff;
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  min-height: 100svh;
+  color: var(--login-ink);
+  background: var(--login-paper);
+  font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
+}
+.login-art-panel {
+  position: relative;
+  display: flex;
+  min-height: 860px;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 42px 48px 26px;
+  background: #e9ecdf;
+}
+.login-art-panel::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.12' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.login-art-topline,
+.login-art-footer {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.login-wordmark {
+  color: var(--login-ink);
+  font-size: 29px;
+  font-weight: 700;
+  letter-spacing: -1.8px;
+  text-decoration: none;
+}
+.login-wordmark span {
+  color: var(--login-blue);
+}
+.login-edition {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.7px;
+}
+.login-editorial {
+  z-index: 2;
+  margin-top: clamp(68px, 8vh, 110px);
+}
+.login-overline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1.65px;
+}
+.login-overline > span {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+}
+.login-editorial h1 {
+  margin: 25px 0 22px;
+  font-size: clamp(45px, 5.2vw, 82px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -4px;
+}
+.login-editorial h1 > span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -3.8px;
+}
+.login-story-copy {
+  margin: 0;
+  color: #676c60;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.login-sculpture {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  min-height: 280px;
+  margin-top: -5px;
+  flex: 1;
+}
+.login-sculpture::after {
+  position: absolute;
+  bottom: 16%;
+  left: 15%;
+  width: 65%;
+  height: 10%;
+  border-radius: 50%;
+  background: #4f59483a;
+  filter: blur(20px);
+  content: "";
+}
+.login-orbit {
+  position: absolute;
+  z-index: 2;
+  left: 12%;
+  top: 28%;
+  width: 76%;
+  height: 42%;
+  border: 1px solid #929b80;
+  border-radius: 50%;
+  transform: rotate(-27deg);
+}
+.login-orbit-two {
+  left: 18%;
+  top: 11%;
+  width: 60%;
+  height: 74%;
+  border-color: #b2b9a2;
+  transform: rotate(34deg);
+}
+.login-sphere {
+  position: absolute;
+  z-index: 3;
+  border-radius: 50%;
+}
+.login-sphere-large {
+  left: 28%;
+  top: 13%;
+  width: 47%;
+  aspect-ratio: 1;
+  max-height: 310px;
+  background: radial-gradient(
+    circle at 29% 21%,
+    #8aabff 0,
+    #4d77ff 18%,
+    #234bff 42%,
+    #1838bd 67%,
+    #07165b 94%
+  );
+  box-shadow:
+    inset -15px -16px 26px #0b146f80,
+    inset 2px 3px 14px #b3c6ff80,
+    12px 28px 34px #102fc326;
+}
+.login-sphere-large::before {
+  position: absolute;
+  inset: 11% 15%;
+  border: 1px solid #c7d4ff33;
+  border-radius: 50%;
+  transform: rotate(-28deg);
+  content: "";
+}
+.login-sphere-small {
+  left: 15%;
+  top: 65%;
+  width: 12%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 28% 26%, #fffef2, #d6dfbf 45%, #849477);
+  box-shadow: 3px 8px 10px #58634222;
+}
+.login-art-coordinate {
+  position: absolute;
+  z-index: 4;
+  color: #737b68;
+  font-family: "Courier New", monospace;
+  font-size: 7px;
+  letter-spacing: 0.7px;
+}
+.login-coordinate-one {
+  left: 4%;
+  top: 45%;
+  writing-mode: vertical-rl;
+}
+.login-coordinate-two {
+  right: -4px;
+  bottom: 15%;
+  writing-mode: vertical-rl;
+}
+.login-plus {
+  position: absolute;
+  z-index: 4;
+  font-size: 19px;
+  font-weight: 300;
+  color: #4a5540;
+}
+.login-plus-one {
+  left: 8%;
+  top: 24%;
+}
+.login-plus-two {
+  right: 7%;
+  bottom: 20%;
+}
+.login-art-footer {
+  padding-top: 14px;
+  border-top: 1px solid #929b8033;
+  font-size: 9px;
+  color: #58634d;
+}
+.login-art-footer > span:last-child {
+  font-size: 22px;
+}
+.login-access-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 43px clamp(32px, 5.6vw, 100px) 29px;
+}
+.login-access-topline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.login-mobile-wordmark {
+  display: none;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+.login-environment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #dcded3;
+  border-radius: 30px;
+  padding: 6px 10px;
+  color: #6e7466;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.login-environment i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #69845f;
+}
+.login-form-content {
+  width: 100%;
+  max-width: 375px;
+  margin: 50px auto;
+}
+.login-access-overline {
+  color: #8c9185;
+  font-size: 8px;
+}
+.login-form-content h2 {
+  margin: 25px 0 18px;
+  font-size: clamp(36px, 3.3vw, 49px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -2.3px;
+}
+.login-form-content h2 > span {
+  color: #828a77;
+}
+.login-access-copy {
+  max-width: 310px;
+  margin: 0 0 39px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #858b7e;
+}
+.login-form fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.login-form fieldset:disabled {
+  opacity: 0.65;
+}
+.login-field-group {
+  margin-bottom: 27px;
+}
+.login-field-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.login-field-group label span {
+  font-family: "Courier New", monospace;
+  font-size: 8px;
+  font-weight: 400;
+  color: #858b7e;
+}
+.login-field-group input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid #cfd3c6;
+  border-radius: 0;
+  padding: 3px 0 14px;
+  outline: none;
+  background: transparent;
+  color: var(--login-ink);
+  font: inherit;
+  font-size: 13px;
+}
+.login-field-group input::placeholder {
+  color: #a2a797;
+}
+.login-field-group input:focus {
+  border-bottom-color: var(--login-blue);
+  box-shadow: 0 1px 0 var(--login-blue);
+}
+.login-submit {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 36px;
+  border: 0;
+  border-radius: 3px;
+  padding: 0 19px;
+  background: var(--login-blue);
+  color: white;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+.login-submit:hover {
+  background: #1738d5;
+}
+.login-submit > span:last-child {
+  font-size: 24px;
+  font-weight: 300;
+}
+.login-private-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 25px;
+}
+.login-private-note svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #737c66;
+}
+.login-private-note p {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.7;
+  color: #6f7861;
+}
+.login-private-note p span {
+  color: #939a87;
+}
+.login-error {
+  border-left: 2px solid #b34136;
+  padding: 10px 12px;
+  background: #b3413609;
+  color: #9e3028;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.login-access-footer {
+  margin: 0;
+  text-align: center;
+  font-size: 9px;
+  color: #a2a797;
+}
+@media (min-width: 1500px) {
+  .login-art-panel {
+    padding-right: 70px;
+    padding-left: 70px;
+  }
+  .login-sculpture {
+    max-width: 580px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+@media (max-width: 1023px) {
+  .login-art-panel {
+    padding: 32px;
+  }
+  .login-edition {
+    display: none;
+  }
+  .login-editorial h1 {
+    font-size: 56px;
+    letter-spacing: -3px;
+  }
+  .login-sphere-large {
+    top: 25%;
+  }
+  .login-form-content h2 {
+    font-size: 38px;
+  }
+  .login-access-panel {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+}
+@media (max-width: 760px) {
+  .login-canvas {
+    grid-template-columns: 1fr;
+  }
+  .login-art-panel {
+    min-height: 440px;
+    padding: 25px 26px 18px;
+  }
+  .login-editorial {
+    margin-top: 42px;
+  }
+  .login-overline {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .login-editorial h1 {
+    margin-top: 18px;
+    font-size: clamp(40px, 8vw, 59px);
+    letter-spacing: -2.5px;
+  }
+  .login-editorial h1 > span {
+    letter-spacing: -2.5px;
+  }
+  .login-story-copy {
+    max-width: 210px;
+    font-size: 10px;
+  }
+  .login-desktop-break {
+    display: none;
+  }
+  .login-sculpture {
+    position: absolute;
+    top: 110px;
+    right: -35%;
+    width: 75%;
+    height: 270px;
+    min-height: 0;
+    margin: 0;
+    opacity: 0.9;
+  }
+  .login-sphere-large {
+    top: 18%;
+    left: 25%;
+    width: 55%;
+  }
+  .login-coordinate-one,
+  .login-coordinate-two,
+  .login-plus {
+    display: none;
+  }
+  .login-art-footer {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 8px;
+  }
+  .login-access-panel {
+    padding: 25px 26px;
+  }
+  .login-form-content {
+    max-width: 420px;
+    margin: 20px auto 40px;
+  }
+  .login-access-topline {
+    position: relative;
+    z-index: 5;
+    margin-bottom: 10px;
+  }
+  .login-form-content h2 {
+    margin-top: 20px;
+    font-size: 38px;
+  }
+  .login-access-copy {
+    margin-bottom: 28px;
+  }
+}
+@media (max-width: 380px) {
+  .login-art-panel {
+    min-height: 415px;
+  }
+  .login-editorial h1 {
+    font-size: 37px;
+  }
+  .login-story-copy {
+    max-width: 175px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .login-editorial,
+  .login-form-content {
+    animation: login-reveal 0.65s ease both;
+  }
+  .login-sculpture {
+    animation: login-reveal 1s ease both;
+  }
+  .login-sphere-large {
+    animation: login-float 10s ease-in-out infinite;
+  }
+  @keyframes login-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes login-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
